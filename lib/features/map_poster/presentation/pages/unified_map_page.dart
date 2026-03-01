@@ -213,27 +213,13 @@ class _MapHeader extends StatelessWidget {
                 children: [
                   Icon(Icons.menu_rounded, color: Colors.white.withAlpha(180), size: 22),
                   const SizedBox(width: 12),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'BOUNTY',
-                          style: GoogleFonts.poppins(
-                            color: BountyColors.textPrimary,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' | Nearby',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white.withAlpha(100),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    'BOUNTY',
+                    style: GoogleFonts.poppins(
+                      color: BountyColors.neonCyan.withAlpha(160),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 2,
                     ),
                   ),
                   const Spacer(),
@@ -352,6 +338,15 @@ class _RealMap extends StatefulWidget {
 
   static const _zoneLabels = ["Ravi's Dosa", 'H&M Store', 'Supermart'];
 
+  static const _merchantPositions = [
+    LatLng(12.9735, 77.5915),
+    LatLng(12.9685, 77.6010),
+    LatLng(12.9785, 77.6030),
+    LatLng(12.9710, 77.5870),
+    LatLng(12.9850, 77.5950),
+  ];
+  static const _merchantNames = ["Ravi's Dosa", 'H&M Store', 'Supermart', 'Chai Point', 'FreshMart'];
+
   @override
   State<_RealMap> createState() => _RealMapState();
 }
@@ -438,6 +433,20 @@ class _RealMapState extends State<_RealMap> {
               ),
           ],
         ),
+
+        // Merchant hot zone markers
+        MarkerLayer(
+          markers: [
+            for (var i = 0; i < _RealMap._merchantPositions.length; i++)
+              Marker(
+                point: _RealMap._merchantPositions[i],
+                width: 72,
+                height: 44,
+                alignment: Alignment.topCenter,
+                child: _MerchantPin(name: _RealMap._merchantNames[i]),
+              ),
+          ],
+        ),
       ],
       ),
     );
@@ -468,6 +477,42 @@ class _PinChip extends StatelessWidget {
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 //  LIVE BOUNTY PINS Ã¢â‚¬â€ Red/gold drop-pins in hunter mode
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+
+class _MerchantPin extends StatelessWidget {
+  const _MerchantPin({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 22, height: 22,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: BountyColors.neonCyan.withAlpha(22),
+            border: Border.all(color: BountyColors.neonCyan.withAlpha(110), width: 1),
+          ),
+          child: Icon(Icons.storefront_rounded, color: BountyColors.neonCyan.withAlpha(170), size: 11),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          name,
+          style: GoogleFonts.poppins(
+            color: Colors.white.withAlpha(180),
+            fontSize: 7,
+            fontWeight: FontWeight.w300,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
 
 class _DropPin extends StatelessWidget {
   const _DropPin({required this.isRed});
@@ -681,7 +726,7 @@ class _QuickPostBarState extends State<_QuickPostBar> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.black.withAlpha(170),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: BountyColors.neonCyan.withAlpha(100),
             width: 1.0,
