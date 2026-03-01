@@ -1,0 +1,6 @@
+# Place image assets here.
+# Required for Phase 1:
+#   ghost_logo.png  — App logo (shown in UnifiedMapPage AppBar)
+#   splash.png      — Launch screen asset
+#
+# Neon splash will be added in the UI build sprint.

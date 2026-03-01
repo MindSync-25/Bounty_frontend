@@ -1,0 +1,74 @@
+name: bounty_ghost
+description: "Bounty Ghost — Hyper-local P2P Bounty Marketplace. The Ghost App."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  DEPENDENCIES
+#  Phase 1: Mock-driven. Phase 2: REST (Dio) + WebSocket (stomp_dart_client)
+#  will be activated by flipping AppConfig.useMock = false.
+# ─────────────────────────────────────────────────────────────────────────────
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── Maps ──────────────────────────────────────────────────────────────────
+  google_maps_flutter: ^2.6.1          # Main map UI (Phase 2: with API key)
+  flutter_map: ^6.1.0                  # OpenStreetMap (CartoDB Dark Matter)
+  flutter_map_cancellable_tile_provider: ^2.0.0  # Better web tile loading
+  latlong2: ^0.9.1                     # LatLng coordinate type
+
+  # ── Location ──────────────────────────────────────────────────────────────
+  location: ^7.0.0                     # GPS / permission wrapper
+
+  # ── REST API Client ────────────────────────────────────────────────────────
+  dio: ^5.4.3+1                        # HTTP client (Phase 2: Spring Boot)
+
+  # ── Real-time / WebSocket ─────────────────────────────────────────────────
+  stomp_dart_client: ^2.0.0           # STOMP over WS (Phase 2: Spring STOMP)
+
+  # ── Fonts ─────────────────────────────────────────────────────────────────
+  google_fonts: ^6.2.1                 # Poppins (premium dark feel)
+
+  # ── State Management ──────────────────────────────────────────────────────
+  flutter_bloc: ^8.1.6                 # BLoC / Cubit
+  equatable: ^2.0.5                    # Value equality for states/events
+
+  # ── Dependency Injection ──────────────────────────────────────────────────
+  get_it: ^7.7.0                       # Service locator
+
+  # ── Navigation ────────────────────────────────────────────────────────────
+  go_router: ^14.2.7                   # Declarative routing
+
+  # ── SVG Icons ─────────────────────────────────────────────────────────────
+  flutter_svg: ^2.0.10+1              # Neon / custom icon assets
+
+  # ── Notifications / Toasts ────────────────────────────────────────────────
+  fluttertoast: ^8.2.8                 # Simulated push notifications (Phase 1)
+
+  # ── Functional Error Handling ──────────────────────────────────────────────
+  dartz: ^0.10.1                       # Either<Failure, T> pattern
+
+  # ── Utilities ─────────────────────────────────────────────────────────────
+  uuid: ^4.4.0                         # Generating mock IDs
+  intl: ^0.19.0                        # Date / currency formatting
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  mockito: ^5.4.4
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  FLUTTER CONFIG
+# ─────────────────────────────────────────────────────────────────────────────
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/
+    - assets/images/

@@ -1,0 +1,8 @@
+# Place your SVG/PNG icon assets here.
+# Neon icon set will be added in the UI build sprint.
+# Naming convention: ic_<name>_<variant>.svg
+# Examples:
+#   ic_bounty_open.svg
+#   ic_bounty_urgent.svg
+#   ic_hunter_active.svg
+#   ic_wallet.svg
