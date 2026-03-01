@@ -98,15 +98,25 @@ class _UnifiedMapView extends StatelessWidget {
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 5: "LIVE BOUNTIES" label (hunter, no selection) Ã¢â€â‚¬
               // Layer 5: Live Bounties FAB - mode toggle
               if (selected == null)
-                Positioned(
-                  right: 16,
-                  bottom: isHunter ? 230 : 108,
-                  child: _LiveBountiesFab(
-                    count: bounties.length,
-                    isHunter: isHunter,
-                    onTap: () => context.read<MapPosterBloc>().add(const ToggleHunterMode()),
-                  ),
-                ),
+                isHunter
+                  ? Positioned(
+                      left: 0, right: 0, bottom: 106,
+                      child: Center(
+                        child: _LiveBountiesFab(
+                          count: bounties.length,
+                          isHunter: isHunter,
+                          onTap: () => context.read<MapPosterBloc>().add(const ToggleHunterMode()),
+                        ),
+                      ),
+                    )
+                  : Positioned(
+                      right: 16, bottom: 108,
+                      child: _LiveBountiesFab(
+                        count: bounties.length,
+                        isHunter: isHunter,
+                        onTap: () => context.read<MapPosterBloc>().add(const ToggleHunterMode()),
+                      ),
+                    ),
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 6: Map header (title + toggle) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Positioned(
@@ -132,11 +142,7 @@ class _UnifiedMapView extends StatelessWidget {
                 ),
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 9: Leaderboard strip (hunter, no selection) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-              if (isHunter && selected == null)
-                const Positioned(
-                  left: 0, right: 0, bottom: 0,
-                  child: _LeaderboardStrip(),
-                ),
+
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 10: Bounty found card (hunter + selected) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               if (isHunter && selected != null)
@@ -254,24 +260,32 @@ class _LiveBountiesFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = const Color(0xFF00FF88).withAlpha(185);
+    final fg = isHunter
+        ? BountyColors.neonRed.withAlpha(210)
+        : const Color(0xFF00FF88).withAlpha(185);
+    final borderColor = isHunter
+        ? BountyColors.neonRed.withAlpha(130)
+        : const Color(0xFF00FF88).withAlpha(115);
+    final glowColor = isHunter
+        ? BountyColors.neonRed.withAlpha(45)
+        : const Color(0xFF00FF88).withAlpha(35);
     final label = isHunter
-        ? "I'M FREE  \u2022  $count live"
+        ? 'Live Bounties ($count)'
         : 'Live Bounties ($count)';
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(130),
+          color: Colors.black.withAlpha(160),
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: const Color(0xFF00FF88).withAlpha(115),
+            color: borderColor,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00FF88).withAlpha(35),
+              color: glowColor,
               blurRadius: 10,
               spreadRadius: 0,
             ),
@@ -280,7 +294,10 @@ class _LiveBountiesFab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_tethering_rounded, color: fg, size: 11),
+            Icon(
+              isHunter ? Icons.notifications_rounded : Icons.wifi_tethering_rounded,
+              color: fg, size: 11,
+            ),
             const SizedBox(width: 6),
             Text(
               label,
@@ -820,141 +837,390 @@ class _BountyFoundCard extends StatelessWidget {
   final VoidCallback onAccept;
   final VoidCallback onReject;
 
+  // V3.1 palette
+  static const _green  = Color(0xFF3EBD78);
+  static const _cyan   = Color(0xFF00FFFF);
+  static const _slate  = Color(0xFF1A1C21);
+  static const _white  = Color(0xFFFFFFFF);
+  static const _faded  = Color(0xFFCCCCCC);
+
   @override
   Widget build(BuildContext context) {
+    final reward    = (bounty.rewardCents / 100).round();
+    final netReward = (reward * 0.85).round();
+    final dist      = (bounty.distanceKm * 1000).round();
+    final expiry    = bounty.expiresAt.difference(DateTime.now());
+    final expiryStr = expiry.isNegative
+        ? 'EXPIRED'
+        : '${expiry.inMinutes.toString().padLeft(2, '0')}:${expiry.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+    final orderId   = 'BG-${bounty.id.substring(0, 4).toUpperCase()}';
+
     return Container(
-      decoration: const BoxDecoration(
+      // Gradient fade top â€” dark slate covers ~55% of screen bottom
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [BountyColors.backgroundDeep, Color(0xEE0D1117), Colors.transparent],
-          stops: [0.0, 0.75, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            _slate.withAlpha(80),
+            _slate.withAlpha(216),
+          ],
+          stops: const [0.0, 0.08, 0.28],
         ),
       ),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          padding: EdgeInsets.zero,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(22),
+              topRight: Radius.circular(22),
+            ),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(10),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withAlpha(20), width: 0.5),
+                  color: _slate.withAlpha(217), // ~0.85 opacity
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(22),
+                    topRight: Radius.circular(22),
+                  ),
+                  border: Border.all(
+                    color: _cyan.withAlpha(55), // faint cyan glow edge
+                    width: 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _cyan.withAlpha(18),
+                      blurRadius: 24,
+                      spreadRadius: 0,
+                      offset: const Offset(0, -4),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withAlpha(180),
+                      blurRadius: 40,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
+
+                    // â”€â”€ Drag handle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Center(
+                      child: Container(
+                        width: 38, height: 3,
+                        margin: const EdgeInsets.only(top: 10, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: _faded.withAlpha(60),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+
+                    // â”€â”€ Row 1: Trust badge | Order ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          // Green glowing avatar circle
                           Container(
-                            width: 6, height: 6,
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: BountyColors.neonGreen),
+                            width: 28, height: 28,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _green.withAlpha(18),
+                              border: Border.all(color: _green.withAlpha(120), width: 1.0),
+                              boxShadow: [BoxShadow(color: _green.withAlpha(40), blurRadius: 10)],
+                            ),
+                            child: Icon(Icons.person_rounded, color: _green.withAlpha(220), size: 13),
                           ),
                           const SizedBox(width: 8),
-                          Text('Bounty Found',
-                              style: GoogleFonts.poppins(
-                                color: BountyColors.textPrimary, fontSize: 14,
-                                fontWeight: FontWeight.w600, letterSpacing: 0.2,
-                              )),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                bounty.posterName.toUpperCase(),
+                                style: GoogleFonts.poppins(
+                                  color: _green,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.8,
+                                  shadows: [Shadow(color: _green.withAlpha(70), blurRadius: 8)],
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.star_rounded, color: _green.withAlpha(180), size: 9),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    'TRUST: 98%  \u2022  ELITE',
+                                    style: GoogleFonts.poppins(
+                                      color: _green.withAlpha(170),
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                           const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: BountyColors.neonGreen.withAlpha(15),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: BountyColors.neonGreen.withAlpha(60), width: 0.5),
-                            ),
-                            child: Text(
-                              '${(bounty.distanceKm * 1000).round()}m away',
-                              style: GoogleFonts.poppins(
-                                color: BountyColors.neonGreen, fontSize: 9, fontWeight: FontWeight.w500,
+                          // Order ID + expiry
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                orderId,
+                                style: GoogleFonts.poppins(
+                                  color: _faded.withAlpha(120),
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1, thickness: 0.3, color: Colors.white.withAlpha(15)),
-                    // Video + text
-                    Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _VideoThumb(),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              bounty.description,
-                              style: GoogleFonts.poppins(
-                                color: Colors.white.withAlpha(180), fontSize: 12,
-                                fontWeight: FontWeight.w400, height: 1.5,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Buttons
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: onAccept,
-                              child: Container(
-                                height: 42,
+                              const SizedBox(height: 2),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: BountyColors.neonGreen,
-                                  borderRadius: BorderRadius.circular(14),
-                                  boxShadow: [BoxShadow(color: BountyColors.neonGreen.withAlpha(80), blurRadius: 14)],
+                                  color: BountyColors.neonRed.withAlpha(18),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: BountyColors.neonRed.withAlpha(80), width: 0.7),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text('Accept',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.black, fontSize: 13,
-                                          fontWeight: FontWeight.w700, letterSpacing: 0.3,
-                                        )),
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.arrow_forward_rounded, color: Colors.black, size: 14),
+                                    Icon(Icons.timer_rounded, color: BountyColors.neonRed.withAlpha(180), size: 8),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      expiryStr,
+                                      style: GoogleFonts.poppins(
+                                        color: BountyColors.neonRed.withAlpha(200),
+                                        fontSize: 8.5,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: onReject,
-                            child: Container(
-                              height: 42,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withAlpha(8),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Colors.white.withAlpha(30), width: 0.5),
-                              ),
-                              child: Center(
-                                child: Text('Skip',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white.withAlpha(120), fontSize: 12, fontWeight: FontWeight.w500,
-                                    )),
-                              ),
-                            ),
+                            ],
                           ),
                         ],
+                      ),
+                    ),
+
+                    // â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Divider(height: 1, thickness: 0.4, color: _faded.withAlpha(22)),
+                    ),
+
+                    // â”€â”€ Main title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Category chip
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: _cyan.withAlpha(14),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: _cyan.withAlpha(55), width: 0.5),
+                                  ),
+                                  child: Text(
+                                    bounty.categoryLabel.toUpperCase(),
+                                    style: GoogleFonts.poppins(
+                                      color: _cyan.withAlpha(200),
+                                      fontSize: 7.5,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                // THE TASK â€” max hierarchy bold white
+                                Text(
+                                  bounty.title.toUpperCase(),
+                                  style: GoogleFonts.poppins(
+                                    color: _white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.3,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // THE MONEY â€” max hierarchy neon green
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '\u20B9$reward',
+                                style: GoogleFonts.poppins(
+                                  color: _green,
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.w900,
+                                  height: 1.0,
+                                  shadows: [
+                                    Shadow(color: _green.withAlpha(110), blurRadius: 18),
+                                    Shadow(color: _green.withAlpha(50), blurRadius: 35),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                'BOUNTY',
+                                style: GoogleFonts.poppins(
+                                  color: _green.withAlpha(140),
+                                  fontSize: 7.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 2.0,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '+\u20B9$netReward net (85%)',
+                                style: GoogleFonts.poppins(
+                                  color: _faded.withAlpha(100),
+                                  fontSize: 7.5,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // â”€â”€ Logistics strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                      child: Row(
+                        children: [
+                          _V31Chip(icon: Icons.place_rounded,           text: '${dist}m away',      color: _green),
+                          const SizedBox(width: 6),
+                          _V31Chip(icon: Icons.directions_walk_rounded,  text: '~2 min walk',        color: _cyan),
+                          const SizedBox(width: 6),
+                          _V31Chip(icon: Icons.bolt_rounded,             text: bounty.isUrgent ? 'URGENT' : 'Normal', color: bounty.isUrgent ? BountyColors.neonRed : _faded),
+                        ],
+                      ),
+                    ),
+
+                    // â”€â”€ Voice note / description row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withAlpha(60),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: _faded.withAlpha(18), width: 0.5),
+                        ),
+                        child: Row(
+                          children: [
+                            // Play button
+                            Container(
+                              width: 32, height: 32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _green.withAlpha(18),
+                                border: Border.all(color: _green.withAlpha(110), width: 0.8),
+                                boxShadow: [BoxShadow(color: _green.withAlpha(35), blurRadius: 8)],
+                              ),
+                              child: Icon(Icons.play_arrow_rounded, color: _green.withAlpha(210), size: 16),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                '"${bounty.description}"',
+                                style: GoogleFonts.poppins(
+                                  color: _white.withAlpha(165),
+                                  fontSize: 10.5,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w300,
+                                  height: 1.45,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // â”€â”€ ACCEPT button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: GestureDetector(
+                        onTap: onAccept,
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A2016),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: const Color(0xFF2A5C38), width: 1.5),
+                            boxShadow: [
+                              BoxShadow(color: const Color(0xFF1A4A2E).withAlpha(80), blurRadius: 18, spreadRadius: 0),
+                            ],
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'ACCEPT BOUNTY',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.8,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text('\u{1F47B}', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // â”€â”€ DISMISS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                    GestureDetector(
+                      onTap: onReject,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        child: Center(
+                          child: Text(
+                            'DISMISS',
+                            style: GoogleFonts.poppins(
+                              color: _faded.withAlpha(90),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -968,38 +1234,34 @@ class _BountyFoundCard extends StatelessWidget {
   }
 }
 
-class _VideoThumb extends StatelessWidget {
+// Logistics chip used in V3.1 card
+class _V31Chip extends StatelessWidget {
+  const _V31Chip({required this.icon, required this.text, required this.color});
+  final IconData icon;
+  final String text;
+  final Color color;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 72, height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withAlpha(8),
-        border: Border.all(color: Colors.white.withAlpha(20), width: 0.5),
+        color: color.withAlpha(14),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withAlpha(60), width: 0.6),
       ),
-      child: Stack(
-        alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 26, height: 26,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: BountyColors.neonGreen.withAlpha(20),
-              border: Border.all(color: BountyColors.neonGreen.withAlpha(120), width: 0.8),
-            ),
-            child: Icon(Icons.play_arrow_rounded, color: BountyColors.neonGreen.withAlpha(200), size: 14),
-          ),
-          Positioned(
-            top: 5, right: 5,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              decoration: BoxDecoration(
-                color: BountyColors.neonRed.withAlpha(180),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text('3s',
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600)),
+          Icon(icon, color: color.withAlpha(190), size: 9.5),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: color.withAlpha(210),
+              fontSize: 8.5,
+              fontWeight: FontWeight.w600,
+              shadows: [Shadow(color: color.withAlpha(60), blurRadius: 6)],
             ),
           ),
         ],
@@ -1007,11 +1269,6 @@ class _VideoThumb extends StatelessWidget {
     );
   }
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-//  LEADERBOARD STRIP Ã¢â‚¬â€ Hunter mode bottom when no bounty selected
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-
 class _LeaderboardStrip extends StatelessWidget {
   const _LeaderboardStrip();
 
