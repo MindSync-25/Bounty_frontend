@@ -96,7 +96,17 @@ class _UnifiedMapView extends StatelessWidget {
               ),
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 5: "LIVE BOUNTIES" label (hunter, no selection) Ã¢â€â‚¬
-              if (isHunter && selected == null) const _LiveBountiesLabel(),
+              // Layer 5: Live Bounties FAB - mode toggle
+              if (selected == null)
+                Positioned(
+                  right: 16,
+                  bottom: isHunter ? 230 : 108,
+                  child: _LiveBountiesFab(
+                    count: bounties.length,
+                    isHunter: isHunter,
+                    onTap: () => context.read<MapPosterBloc>().add(const ToggleHunterMode()),
+                  ),
+                ),
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 6: Map header (title + toggle) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Positioned(
@@ -106,7 +116,7 @@ class _UnifiedMapView extends StatelessWidget {
 
               // Ã¢â€â‚¬Ã¢â€â‚¬ Layer 7: Navigation arrow (top right) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               const Positioned(
-                top: 112, right: 16,
+                top: 72, right: 16,
                 child: _NavigationArrowButton(),
               ),
 
@@ -188,52 +198,50 @@ class _MapHeader extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                BountyColors.backgroundDeep.withAlpha(210),
-                BountyColors.backgroundDeep.withAlpha(100),
+                BountyColors.backgroundDeep.withAlpha(200),
+                BountyColors.backgroundDeep.withAlpha(80),
                 Colors.transparent,
               ],
-              stops: const [0.0, 0.7, 1.0],
+              stops: const [0.0, 0.65, 1.0],
             ),
           ),
           child: SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 4, height: 4,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: BountyColors.neonGreen,
+                  Icon(Icons.menu_rounded, color: Colors.white.withAlpha(180), size: 22),
+                  const SizedBox(width: 12),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'BOUNTY',
+                          style: GoogleFonts.poppins(
+                            color: BountyColors.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'BOUNTY',
-                        style: GoogleFonts.poppins(
-                          color: BountyColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 6,
+                        TextSpan(
+                          text: ' | Nearby',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white.withAlpha(100),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 4, height: 4,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: BountyColors.neonGreen,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  _ModeToggle(isHunterMode: isHunterMode),
+                  const Spacer(),
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: BountyColors.neonGreen.withAlpha(30),
+                    child: Icon(Icons.person_rounded, color: BountyColors.neonGreen.withAlpha(180), size: 18),
+                  ),
                 ],
               ),
             ),
@@ -244,92 +252,65 @@ class _MapHeader extends StatelessWidget {
   }
 }
 
-class _ModeToggle extends StatelessWidget {
-  const _ModeToggle({required this.isHunterMode});
-  final bool isHunterMode;
+// u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}
+//  LIVE BOUNTIES FAB u{2014} one-tap mode toggle pill
+// u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}u{2500}
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 34,
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(10),
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: Colors.white.withAlpha(25), width: 0.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // I NEED Ã¢â‚¬â€ Poster Mode
-          _ToggleOption(
-            label: 'I NEED',
-            isActive: !isHunterMode,
-            onTap: () {
-              if (isHunterMode) {
-                context.read<MapPosterBloc>().add(const ToggleHunterMode());
-              }
-            },
-          ),
-          // I'M FREE Ã¢â‚¬â€ Hunter Mode
-          _ToggleOption(
-            label: "I'M FREE",
-            isActive: isHunterMode,
-            onTap: () {
-              if (!isHunterMode) {
-                context.read<MapPosterBloc>().add(const ToggleHunterMode());
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToggleOption extends StatelessWidget {
-  const _ToggleOption({
-    required this.label,
-    required this.isActive,
+class _LiveBountiesFab extends StatelessWidget {
+  const _LiveBountiesFab({
+    required this.count,
+    required this.isHunter,
     required this.onTap,
   });
-  final String label;
-  final bool isActive;
+  final int count;
+  final bool isHunter;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final fg = const Color(0xFF00FF88).withAlpha(150);
+    final label = isHunter
+        ? "I'M FREE  \u2022  $count live"
+        : 'Live Bounties ($count)';
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isActive ? BountyColors.neonGreen.withAlpha(220) : Colors.transparent,
-          borderRadius: BorderRadius.circular(17),
-          boxShadow: isActive
-              ? [BoxShadow(color: BountyColors.neonGreen.withAlpha(60), blurRadius: 12, spreadRadius: 0)]
-              : [],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: isActive ? Colors.black : BountyColors.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.8,
+          color: Colors.black.withAlpha(130),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: const Color(0xFF00FF88).withAlpha(85),
+            width: 1.0,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00FF88).withAlpha(20),
+              blurRadius: 10,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.wifi_tethering_rounded, color: fg, size: 11),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: fg,
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-//  REAL MAP â€” CartoDB Dark Matter tiles + OpenStreetMap (free, no API key)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 class _RealMap extends StatefulWidget {
   const _RealMap({
     required this.isHunterMode,
@@ -394,7 +375,15 @@ class _RealMapState extends State<_RealMap> {
   Widget build(BuildContext context) {
     final isHunter = widget.isHunterMode;
     final bounties = widget.bounties;
-    return FlutterMap(
+    return ColorFiltered(
+      colorFilter: const ColorFilter.matrix([
+        // Subtle cool tint — matches mockup tone
+        0.95, 0.00, 0.00, 0, 0,
+        0.00, 0.97, 0.02, 0, 0,
+        0.05, 0.03, 1.00, 0, 8,
+        0.00, 0.00, 0.00, 1, 0,
+      ]),
+      child: FlutterMap(
       mapController: _mapCtrl,
       options: MapOptions(
         initialCenter: _RealMap._center,
@@ -413,61 +402,6 @@ class _RealMapState extends State<_RealMap> {
           tileProvider: CancellableNetworkTileProvider(),
         ),
 
-        // Merchant hot zones â€” yellow border rectangles (poster mode)
-        if (!isHunter)
-          PolygonLayer(
-            polygons: [
-              for (final zone in _RealMap._zones)
-                Polygon(
-                  points: zone,
-                  color: const Color(0xFFFFD700).withAlpha(30),
-                  borderColor: const Color(0xFFFFD700),
-                  borderStrokeWidth: 2.0,
-                ),
-            ],
-          ),
-
-        // Zone labels â€” POPULAR badge + name on each zone
-        if (!isHunter)
-          MarkerLayer(
-            markers: [
-              for (var i = 0; i < _RealMap._zones.length; i++)
-                Marker(
-                  point: _RealMap._zones[i][0],
-                  width: 88,
-                  height: 38,
-                  alignment: Alignment.bottomLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFCC3300),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Text('POPULAR',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 7,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                            )),
-                      ),
-                      Text(_RealMap._zoneLabels[i],
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFFFFD700),
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          )),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-
         // Active hunter cyan dots
         CircleLayer(
           circles: [
@@ -475,9 +409,9 @@ class _RealMapState extends State<_RealMap> {
               CircleMarker(
                 point: dot,
                 radius: 6,
-                color: BountyColors.neonCyan.withAlpha(200),
-                borderColor: BountyColors.neonCyan,
-                borderStrokeWidth: 1.5,
+                color: BountyColors.neonCyan.withAlpha(80),
+                borderColor: BountyColors.neonCyan.withAlpha(130),
+                borderStrokeWidth: 1.0,
                 useRadiusInMeter: false,
               ),
           ],
@@ -492,8 +426,8 @@ class _RealMapState extends State<_RealMap> {
                 i++)
               Marker(
                 point: _RealMap._bountyPositions[i],
-                width: isHunter ? 54 : 86,
-                height: isHunter ? 58 : 38,
+                width: isHunter ? 54 : 20,
+                height: isHunter ? 58 : 20,
                 alignment: Alignment.topCenter,
                 child: GestureDetector(
                   onTap: () => widget.onBountyTap(bounties[i].id),
@@ -505,6 +439,7 @@ class _RealMapState extends State<_RealMap> {
           ],
         ),
       ],
+      ),
     );
   }
 }
@@ -517,23 +452,13 @@ class _PinChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = bounty.isUrgent ? BountyColors.neonRed : BountyColors.neonCyan;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      width: 14, height: 14,
       decoration: BoxDecoration(
-        color: Colors.black.withAlpha(180),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withAlpha(160), width: 0.8),
-        boxShadow: [BoxShadow(color: color.withAlpha(50), blurRadius: 12, spreadRadius: 0)],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 5, height: 5,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-          ),
-          const SizedBox(width: 5),
-          Text(bounty.rewardDisplay,
-              style: GoogleFonts.poppins(color: color, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 0.3)),
+        shape: BoxShape.circle,
+        color: color.withAlpha(90),
+        boxShadow: [
+          BoxShadow(color: color.withAlpha(60), blurRadius: 6, spreadRadius: 1),
+          BoxShadow(color: color.withAlpha(25), blurRadius: 12, spreadRadius: 2),
         ],
       ),
     );
@@ -750,109 +675,86 @@ class _QuickPostBarState extends State<_QuickPostBar> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                BountyColors.backgroundDeep.withAlpha(230),
-                BountyColors.backgroundDeep.withAlpha(140),
-                Colors.transparent,
-              ],
-              stops: const [0.0, 0.6, 1.0],
-            ),
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom + 64;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(10, 0, 10, bottomInset + 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha(170),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: BountyColors.neonCyan.withAlpha(75),
+            width: 1.0,
           ),
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(8),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: Colors.white.withAlpha(18), width: 0.5),
-                  ),
-                  child: Row(
-                    children: [
-                      // Mic button
-                      GestureDetector(
-                        onTap: _submit,
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: BountyColors.neonGreen.withAlpha(18),
-                            border: Border.all(color: BountyColors.neonGreen.withAlpha(120), width: 0.8),
-                          ),
-                          child: Icon(Icons.mic_rounded, color: BountyColors.neonGreen.withAlpha(200), size: 16),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Text field
-                      Expanded(
-                        child: TextField(
-                          controller: _ctrl,
-                          style: GoogleFonts.poppins(
-                            color: BountyColors.textPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'What do you need?',
-                            hintStyle: GoogleFonts.poppins(
-                              color: Colors.white.withAlpha(60),
-                              fontSize: 12,
-                            ),
-                            isDense: true,
-                            filled: false,
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                          ),
-                          onSubmitted: (_) => _submit(),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      // Send button
-                      GestureDetector(
-                        onTap: _submit,
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: BountyColors.neonGreen,
-                            boxShadow: [BoxShadow(color: BountyColors.neonGreen.withAlpha(80), blurRadius: 12)],
-                          ),
-                          child: const Icon(Icons.arrow_upward_rounded, color: Colors.black, size: 17),
-                        ),
-                      ),
-                    ],
-                  ),
+          boxShadow: [
+            BoxShadow(
+              color: BountyColors.neonCyan.withAlpha(22),
+              blurRadius: 12,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        child: Row(
+          children: [
+            Container(
+              width: 24, height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: BountyColors.neonCyan.withAlpha(15),
+                border: Border.all(color: BountyColors.neonCyan.withAlpha(80), width: 1),
+              ),
+              child: Icon(Icons.mic_rounded, color: BountyColors.neonCyan.withAlpha(140), size: 11),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: TextField(
+                controller: _ctrl,
+                style: GoogleFonts.poppins(
+                  color: BountyColors.textPrimary,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w300,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'tap mic to post by voice',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white.withAlpha(40),
-                    fontSize: 10,
+                maxLines: 1,
+                minLines: 1,
+                decoration: InputDecoration(
+                  hintText: 'Post a bounty... (e.g., Get Dosa, Wait in a Line)',
+                  hintStyle: GoogleFonts.poppins(
+                    color: Colors.white.withAlpha(55),
+                    fontSize: 9.5,
                     fontWeight: FontWeight.w300,
-                    letterSpacing: 0.5,
                   ),
+                  isDense: true,
+                  filled: false,
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                 ),
-                const SizedBox(height: 10),
-              ],
+                onSubmitted: (_) => _submit(),
+              ),
             ),
-          ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: _submit,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.send_rounded, color: BountyColors.neonCyan.withAlpha(140), size: 13),
+                  const SizedBox(height: 1),
+                  Text(
+                    'Post',
+                    style: GoogleFonts.poppins(
+                      color: BountyColors.neonCyan.withAlpha(110),
+                      fontSize: 7,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -47,6 +47,7 @@ class BountyShell extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: BountyColors.backgroundDeep,
+      extendBody: true,
       body: child,
       bottomNavigationBar: _GhostNavBar(
         currentIndex: currentIndex,
@@ -103,14 +104,14 @@ class _GhostNavBar extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
                             color: i == currentIndex
-                                ? BountyColors.neonGreen.withAlpha(20)
+                                ? BountyColors.neonCyan.withAlpha(10)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             i == currentIndex ? items[i].activeIcon : items[i].icon,
                             color: i == currentIndex
-                                ? BountyColors.neonGreen
+                                ? BountyColors.neonCyan.withAlpha(130)
                                 : Colors.white.withAlpha(60),
                             size: 18,
                           ),
@@ -120,7 +121,7 @@ class _GhostNavBar extends StatelessWidget {
                           items[i].label,
                           style: GoogleFonts.poppins(
                             color: i == currentIndex
-                                ? BountyColors.neonGreen
+                                ? BountyColors.neonCyan.withAlpha(130)
                                 : Colors.white.withAlpha(50),
                             fontSize: 8,
                             fontWeight: i == currentIndex
