@@ -104,14 +104,14 @@ class _GhostNavBar extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
                             color: i == currentIndex
-                                ? BountyColors.neonCyan.withAlpha(10)
+                                ? BountyColors.neonCyan.withAlpha(18)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             i == currentIndex ? items[i].activeIcon : items[i].icon,
                             color: i == currentIndex
-                                ? BountyColors.neonCyan.withAlpha(130)
+                                ? BountyColors.neonCyan.withAlpha(160)
                                 : Colors.white.withAlpha(60),
                             size: 18,
                           ),
@@ -121,7 +121,7 @@ class _GhostNavBar extends StatelessWidget {
                           items[i].label,
                           style: GoogleFonts.poppins(
                             color: i == currentIndex
-                                ? BountyColors.neonCyan.withAlpha(130)
+                                ? BountyColors.neonCyan.withAlpha(160)
                                 : Colors.white.withAlpha(50),
                             fontSize: 8,
                             fontWeight: i == currentIndex

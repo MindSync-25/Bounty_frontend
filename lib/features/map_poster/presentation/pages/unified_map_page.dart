@@ -268,7 +268,7 @@ class _LiveBountiesFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = const Color(0xFF00FF88).withAlpha(150);
+    final fg = const Color(0xFF00FF88).withAlpha(185);
     final label = isHunter
         ? "I'M FREE  \u2022  $count live"
         : 'Live Bounties ($count)';
@@ -280,12 +280,12 @@ class _LiveBountiesFab extends StatelessWidget {
           color: Colors.black.withAlpha(130),
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: const Color(0xFF00FF88).withAlpha(85),
+            color: const Color(0xFF00FF88).withAlpha(115),
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00FF88).withAlpha(20),
+              color: const Color(0xFF00FF88).withAlpha(35),
               blurRadius: 10,
               spreadRadius: 0,
             ),
@@ -409,8 +409,8 @@ class _RealMapState extends State<_RealMap> {
               CircleMarker(
                 point: dot,
                 radius: 6,
-                color: BountyColors.neonCyan.withAlpha(80),
-                borderColor: BountyColors.neonCyan.withAlpha(130),
+                color: BountyColors.neonCyan.withAlpha(105),
+                borderColor: BountyColors.neonCyan.withAlpha(160),
                 borderStrokeWidth: 1.0,
                 useRadiusInMeter: false,
               ),
@@ -683,12 +683,12 @@ class _QuickPostBarState extends State<_QuickPostBar> {
           color: Colors.black.withAlpha(170),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: BountyColors.neonCyan.withAlpha(75),
+            color: BountyColors.neonCyan.withAlpha(100),
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: BountyColors.neonCyan.withAlpha(22),
+              color: BountyColors.neonCyan.withAlpha(35),
               blurRadius: 12,
               spreadRadius: 0,
             ),
@@ -701,10 +701,10 @@ class _QuickPostBarState extends State<_QuickPostBar> {
               width: 24, height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: BountyColors.neonCyan.withAlpha(15),
-                border: Border.all(color: BountyColors.neonCyan.withAlpha(80), width: 1),
+                color: BountyColors.neonCyan.withAlpha(22),
+                border: Border.all(color: BountyColors.neonCyan.withAlpha(110), width: 1),
               ),
-              child: Icon(Icons.mic_rounded, color: BountyColors.neonCyan.withAlpha(140), size: 11),
+              child: Icon(Icons.mic_rounded, color: BountyColors.neonCyan.withAlpha(170), size: 11),
             ),
             const SizedBox(width: 5),
             Expanded(
@@ -740,12 +740,12 @@ class _QuickPostBarState extends State<_QuickPostBar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.send_rounded, color: BountyColors.neonCyan.withAlpha(140), size: 13),
+                  Icon(Icons.send_rounded, color: BountyColors.neonCyan.withAlpha(170), size: 13),
                   const SizedBox(height: 1),
                   Text(
                     'Post',
                     style: GoogleFonts.poppins(
-                      color: BountyColors.neonCyan.withAlpha(110),
+                      color: BountyColors.neonCyan.withAlpha(145),
                       fontSize: 7,
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.3,
