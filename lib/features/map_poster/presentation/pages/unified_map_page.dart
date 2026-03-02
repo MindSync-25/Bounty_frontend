@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,6 +89,7 @@ class _UnifiedMapView extends StatelessWidget {
                 child: _RealMap(
                   isHunterMode: isHunter,
                   bounties: bounties,
+                  selectedBountyId: selected?.id,
                   onBountyTap: (id) => context
                       .read<MapPosterBloc>()
                       .add(SelectBounty(bountyId: id)),
@@ -319,11 +320,13 @@ class _RealMap extends StatefulWidget {
     required this.isHunterMode,
     required this.bounties,
     required this.onBountyTap,
+    this.selectedBountyId,
   });
 
   final bool isHunterMode;
   final List<BountyEntity> bounties;
   final void Function(String id) onBountyTap;
+  final String? selectedBountyId;
 
   // Bangalore city centre
   static const _center = LatLng(12.9716, 77.5946);
@@ -438,13 +441,16 @@ class _RealMapState extends State<_RealMap> {
                 i++)
               Marker(
                 point: _RealMap._bountyPositions[i],
-                width: isHunter ? 54 : 20,
-                height: isHunter ? 58 : 20,
+                width: isHunter ? 58 : 50,
+                height: isHunter ? 62 : 22,
                 alignment: Alignment.topCenter,
                 child: GestureDetector(
                   onTap: () => widget.onBountyTap(bounties[i].id),
                   child: isHunter
-                      ? _DropPin(isRed: bounties[i].isUrgent || i < 3)
+                      ? _DropPin(
+                          isRed: bounties[i].isUrgent || i < 3,
+                          isSelected: widget.selectedBountyId == bounties[i].id,
+                        )
                       : _PinChip(bounty: bounties[i]),
                 ),
               ),
@@ -477,14 +483,30 @@ class _PinChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = bounty.isUrgent ? BountyColors.neonRed : BountyColors.neonCyan;
+    final reward = (bounty.rewardCents / 100).round();
     return Container(
-      width: 14, height: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color.withAlpha(90),
+        color: Colors.black.withAlpha(190),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withAlpha(150), width: 0.8),
         boxShadow: [
-          BoxShadow(color: color.withAlpha(60), blurRadius: 6, spreadRadius: 1),
-          BoxShadow(color: color.withAlpha(25), blurRadius: 12, spreadRadius: 2),
+          BoxShadow(color: color.withAlpha(70), blurRadius: 8, spreadRadius: 0),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.currency_rupee_rounded, color: color.withAlpha(210), size: 7),
+          Text(
+            '$reward',
+            style: GoogleFonts.poppins(
+              color: color.withAlpha(230),
+              fontSize: 8,
+              fontWeight: FontWeight.w700,
+              height: 1.1,
+            ),
+          ),
         ],
       ),
     );
@@ -532,53 +554,106 @@ class _MerchantPin extends StatelessWidget {
 }
 
 class _DropPin extends StatelessWidget {
-  const _DropPin({required this.isRed});
+  const _DropPin({required this.isRed, this.isSelected = false});
   final bool isRed;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    final color = isRed ? BountyColors.neonRed : const Color(0xFFFFAA00);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    final color = isRed ? BountyColors.neonRed : const Color(0xFFFFBB33);
+    final pinW = isSelected ? 32.0 : 26.0;
+    final pinH = pinW * 1.38;
+
+    return Stack(
+      alignment: Alignment.topCenter,
+      clipBehavior: Clip.none,
       children: [
-        Container(
-          width: 26, height: 26,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withAlpha(220),
-            border: Border.all(color: Colors.white.withAlpha(60), width: 0.5),
-            boxShadow: [
-              BoxShadow(color: color.withAlpha(120), blurRadius: 10, spreadRadius: 0),
-              BoxShadow(color: color.withAlpha(50), blurRadius: 20, spreadRadius: 2),
-            ],
+        // Pulsing outer ring when selected
+        if (isSelected)
+          Container(
+            width: pinW + 18,
+            height: pinW + 18,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: color.withAlpha(120), width: 1.5),
+              boxShadow: [
+                BoxShadow(color: color.withAlpha(55), blurRadius: 20, spreadRadius: 5),
+              ],
+            ),
           ),
-          child: Icon(
-            isRed ? Icons.priority_high_rounded : Icons.attach_money_rounded,
-            color: Colors.white,
-            size: 13,
+        Padding(
+          padding: EdgeInsets.only(top: isSelected ? 9.0 : 0),
+          child: CustomPaint(
+            painter: _TearDropPainter(color: color),
+            size: Size(pinW, pinH),
+            child: SizedBox(
+              width: pinW,
+              height: pinH,
+              child: Align(
+                alignment: const Alignment(0, -0.3),
+                child: Icon(
+                  isRed ? Icons.bolt_rounded : Icons.currency_rupee_rounded,
+                  color: Colors.white.withAlpha(230),
+                  size: pinW * 0.46,
+                ),
+              ),
+            ),
           ),
-        ),
-        CustomPaint(
-          painter: _PinTailPainter(color: color),
-          size: const Size(7, 7),
         ),
       ],
     );
   }
 }
 
-class _PinTailPainter extends CustomPainter {
-  const _PinTailPainter({required this.color});
+class _TearDropPainter extends CustomPainter {
+  const _TearDropPainter({required this.color});
   final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final r = w / 2;
+    final cx = w / 2;
+
+    // Outer glow
+    canvas.drawCircle(
+      Offset(cx, r), r,
+      Paint()
+        ..color = color.withAlpha(55)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    );
+
+    // Teardrop path: circle top + pointed tail
+    final fill = Paint()
+      ..color = color.withAlpha(220)
+      ..style = PaintingStyle.fill;
+
     final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width / 2, size.height)
+      ..addOval(Rect.fromCircle(center: Offset(cx, r), radius: r))
+      ..moveTo(cx - r * 0.42, r + r * 0.60)
+      ..lineTo(cx, h)
+      ..lineTo(cx + r * 0.42, r + r * 0.60)
       ..close();
-    canvas.drawPath(path, Paint()..color = color);
+
+    canvas.drawPath(path, fill);
+
+    // Inner depth circle
+    canvas.drawCircle(
+      Offset(cx, r), r * 0.66,
+      Paint()
+        ..color = Colors.black.withAlpha(50)
+        ..style = PaintingStyle.fill,
+    );
+
+    // White rim highlight
+    canvas.drawCircle(
+      Offset(cx, r), r - 0.5,
+      Paint()
+        ..color = Colors.white.withAlpha(30)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0,
+    );
   }
 
   @override
@@ -853,7 +928,6 @@ class _BountyFoundCard extends StatelessWidget {
     final expiryStr = expiry.isNegative
         ? 'EXPIRED'
         : '${expiry.inMinutes.toString().padLeft(2, '0')}:${expiry.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-    final orderId   = 'BG-${bounty.id.substring(0, 4).toUpperCase()}';
 
     return Container(
       // Gradient fade top â€” dark slate covers ~55% of screen bottom
@@ -914,7 +988,7 @@ class _BountyFoundCard extends StatelessWidget {
                     Center(
                       child: Container(
                         width: 38, height: 3,
-                        margin: const EdgeInsets.only(top: 10, bottom: 8),
+                        margin: const EdgeInsets.only(top: 6, bottom: 4),
                         decoration: BoxDecoration(
                           color: _faded.withAlpha(60),
                           borderRadius: BorderRadius.circular(2),
@@ -940,79 +1014,66 @@ class _BountyFoundCard extends StatelessWidget {
                             child: Icon(Icons.person_rounded, color: _green.withAlpha(220), size: 13),
                           ),
                           const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                bounty.posterName.toUpperCase(),
-                                style: GoogleFonts.poppins(
-                                  color: _green,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.8,
-                                  shadows: [Shadow(color: _green.withAlpha(70), blurRadius: 8)],
-                                ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.star_rounded, color: _green.withAlpha(180), size: 9),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    'TRUST: 98%  \u2022  ELITE',
-                                    style: GoogleFonts.poppins(
-                                      color: _green.withAlpha(170),
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.3,
-                                    ),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  bounty.posterName.toUpperCase(),
+                                  style: GoogleFonts.poppins(
+                                    color: _green,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                    shadows: [Shadow(color: _green.withAlpha(70), blurRadius: 8)],
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          // Order ID + expiry
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                orderId,
-                                style: GoogleFonts.poppins(
-                                  color: _faded.withAlpha(120),
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.5,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: BountyColors.neonRed.withAlpha(18),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: BountyColors.neonRed.withAlpha(80), width: 0.7),
-                                ),
-                                child: Row(
+                                Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.timer_rounded, color: BountyColors.neonRed.withAlpha(180), size: 8),
+                                    Icon(Icons.star_rounded, color: _green.withAlpha(180), size: 9),
                                     const SizedBox(width: 2),
                                     Text(
-                                      expiryStr,
+                                      'TRUST: 98%  \u2022  ELITE',
                                       style: GoogleFonts.poppins(
-                                        color: BountyColors.neonRed.withAlpha(200),
-                                        fontSize: 8.5,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.5,
+                                        color: _green.withAlpha(170),
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.3,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Expiry timer
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: BountyColors.neonRed.withAlpha(18),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: BountyColors.neonRed.withAlpha(80), width: 0.7),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.timer_rounded, color: BountyColors.neonRed.withAlpha(180), size: 8),
+                                const SizedBox(width: 2),
+                                Text(
+                                  expiryStr,
+                                  style: GoogleFonts.poppins(
+                                    color: BountyColors.neonRed.withAlpha(200),
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -1020,7 +1081,7 @@ class _BountyFoundCard extends StatelessWidget {
 
                     // â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       child: Divider(height: 1, thickness: 0.4, color: _faded.withAlpha(22)),
                     ),
 
@@ -1028,48 +1089,11 @@ class _BountyFoundCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Category chip
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: _cyan.withAlpha(14),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(color: _cyan.withAlpha(55), width: 0.5),
-                                  ),
-                                  child: Text(
-                                    bounty.categoryLabel.toUpperCase(),
-                                    style: GoogleFonts.poppins(
-                                      color: _cyan.withAlpha(200),
-                                      fontSize: 7.5,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                // THE TASK â€” max hierarchy bold white
-                                Text(
-                                  bounty.title.toUpperCase(),
-                                  style: GoogleFonts.poppins(
-                                    color: _white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.3,
-                                    height: 1.1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                           // THE MONEY â€” max hierarchy neon green
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 '\u20B9$reward',
@@ -1110,13 +1134,13 @@ class _BountyFoundCard extends StatelessWidget {
 
                     // â”€â”€ Logistics strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                      child: Row(
+                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
                         children: [
                           _V31Chip(icon: Icons.place_rounded,           text: '${dist}m away',      color: _green),
-                          const SizedBox(width: 6),
                           _V31Chip(icon: Icons.directions_walk_rounded,  text: '~2 min walk',        color: _cyan),
-                          const SizedBox(width: 6),
                           _V31Chip(icon: Icons.bolt_rounded,             text: bounty.isUrgent ? 'URGENT' : 'Normal', color: bounty.isUrgent ? BountyColors.neonRed : _faded),
                         ],
                       ),
@@ -1124,9 +1148,9 @@ class _BountyFoundCard extends StatelessWidget {
 
                     // â”€â”€ Voice note / description row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                         decoration: BoxDecoration(
                           color: Colors.black.withAlpha(60),
                           borderRadius: BorderRadius.circular(10),
@@ -1165,7 +1189,7 @@ class _BountyFoundCard extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 8),
 
                     // â”€â”€ ACCEPT button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Padding(
@@ -1173,7 +1197,7 @@ class _BountyFoundCard extends StatelessWidget {
                       child: GestureDetector(
                         onTap: onAccept,
                         child: Container(
-                          height: 50,
+                          height: 42,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: const Color(0xFF0A2016),
@@ -1209,7 +1233,7 @@ class _BountyFoundCard extends StatelessWidget {
                     GestureDetector(
                       onTap: onReject,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                         child: Center(
                           child: Text(
                             'DISMISS',
@@ -1368,7 +1392,7 @@ class _HunterCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(data.name,
